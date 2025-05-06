@@ -57,7 +57,7 @@ Tab:CreateToggle({
 	CurrentValue = false,
 	Flag = "RandomPlayerAura", -
 	Callback = function(Value)	
-		while Flags.RandomPlayerAuraV2.CurrentValue and task.wait() do
+		while Flags.RandomPlayerAura.CurrentValue and task.wait() do
 			local potentialTargets = {}
 			local allCharactersInWorkspace = workspace.Characters:GetChildren()
 
