@@ -55,7 +55,7 @@ Tab:CreateToggle({
 Tab:CreateToggle({
 	Name = "🎲 • Random Player Aura",
 	CurrentValue = false,
-	Flag = "RandomPlayerAura", -
+	Flag = "RandomPlayerAura", 
 	Callback = function(Value)	
 		while Flags.RandomPlayerAura.CurrentValue and task.wait() do
 			local potentialTargets = {}
