@@ -52,7 +52,30 @@ Tab:CreateToggle({
 		end
 	end,
 })
+Tab:CreateToggle({
+	Name = "🎲 • Random Player Aura",
+	CurrentValue = false,
+	Flag = "RandomPlayerAura", -
+	Callback = function(Value)	
+		while Flags.RandomPlayerAura.CurrentValue and task.wait() do
+			local potentialTargets = {}
+			local allCharactersInWorkspace = workspace.Characters:GetChildren()
 
+			for _, characterInstance in ipairs(allCharactersInWorkspace) do
+				if characterInstance == Player.Character then
+					table.insert(potentialTargets, characterInstance)
+				end
+			end
+
+			if #potentialTargets > 0 then
+				local randomIndex = math.random(1, #potentialTargets)
+				local targetCharacter = potentialTargets[randomIndex]
+				
+				Remotes.CharactersDamageRemote:FireServer({targetCharacter})
+			end
+		end
+	end,
+})
 Tab:CreateToggle({
 	Name = "🔥 • Breath Aura (Needs Breath On)",
 	CurrentValue = false,
