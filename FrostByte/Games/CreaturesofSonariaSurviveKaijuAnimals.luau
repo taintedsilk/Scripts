@@ -62,7 +62,7 @@ Tab:CreateToggle({
 			local allCharactersInWorkspace = workspace.Characters:GetChildren()
 
 			for _, characterInstance in ipairs(allCharactersInWorkspace) do
-				if characterInstance == Player.Character then
+				if characterInstance ~= Player.Character then
 					table.insert(potentialTargets, characterInstance)
 				end
 			end
