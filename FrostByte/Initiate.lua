@@ -16,7 +16,7 @@ local function GetCode(PlaceName)
 	PlaceName = PlaceName:gsub("%b[]", "")
 	PlaceName = PlaceName:gsub("[^%a]", "")
 	
-	local Success, Code: string = pcall(game.HttpGet, game, `https://github.com/alyssagithub/Scripts/raw/main/FrostByte/Games/{PlaceName}.luau`)
+	local Success, Code: string = pcall(game.HttpGet, game, `https://github.com/taintedsilk/Scripts/raw/main/FrostByte/Games/{PlaceName}.luau`)
 
 	if Success and Code:find("ScriptVersion = ") then
 		Notify("Game found, the script is loading.")
