@@ -53,6 +53,31 @@ Tab:CreateToggle({
 	end,
 })
 Tab:CreateToggle({
+	Name = "🎲 • Random Player Aura",
+	CurrentValue = false,
+	Flag = "RandomPlayerAura", -
+	Callback = function(Value)	
+		while Flags.RandomPlayerAuraV2.CurrentValue and task.wait() do
+			local potentialTargets = {}
+			local allCharactersInWorkspace = workspace.Characters:GetChildren()
+
+			for _, characterInstance in ipairs(allCharactersInWorkspace) do
+				if characterInstance == Player.Character then
+					table.insert(potentialTargets, characterInstance)
+				end
+			end
+
+			if #potentialTargets > 0 then
+				local randomIndex = math.random(1, #potentialTargets)
+				local targetCharacter = potentialTargets[randomIndex]
+				
+				Remotes.CharactersDamageRemote:FireServer({targetCharacter})
+			end
+		end
+	end,
+})
+
+Tab:CreateToggle({
 	Name = "🔥 • Breath Aura (Needs Breath On)",
 	CurrentValue = false,
 	Flag = "BreathAura",
@@ -73,87 +98,6 @@ Tab:CreateToggle({
 	end,
 })
 
--- VVVVVV NEWLY ADDED CODE STARTS HERE VVVVVV
-
-Tab:CreateButton({
-    Name = "🎯 • Hit Random Player",
-    Callback = function()
-        if not Player.Character then
-            getgenv().Notify("Error", "You do not have a character. Please spawn in first.")
-            return
-        end
-
-        local characters = workspace.Characters:GetChildren()
-        local otherPlayerModels = {} -- Store valid, non-local player character models
-        for _, charInstance in ipairs(characters) do
-            -- Check if it's a Model, has a Humanoid, and is not the LocalPlayer's character
-            if charInstance:IsA("Model") and charInstance:FindFirstChild("Humanoid") and charInstance ~= Player.Character then
-                table.insert(otherPlayerModels, charInstance)
-            end
-        end
-
-        if #otherPlayerModels > 0 then
-            local randomTarget = otherPlayerModels[math.random(#otherPlayerModels)]
-            getgenv().Notify("Combat", "Attempting to hit random player: " .. randomTarget.Name)
-            Remotes.CharactersDamageRemote:FireServer({randomTarget})
-        else
-            getgenv().Notify("Combat", "No other players found to target.")
-        end
-    end
-})
-
--- Assuming Tab:CreateInput exists and works similarly to CreateToggle, using the Flags system.
--- The 'Flag' property will store the input text in getgenv().Flags.TargetPlayerNameInput.CurrentValue
-Tab:CreateInput({
-    Name = "👤 Target Player Name",
-    PlaceholderText = "Enter player's exact name", -- Assuming a 'PlaceholderText' property
-    Flag = "TargetPlayerNameInput", -- This flag will hold the string from the input field
-    CurrentValue = "", -- Initial value of the input field
-    Callback = function(Value)
-        -- This callback is typically invoked when the input value changes.
-        -- The UI system should ideally update Flags.TargetPlayerNameInput.CurrentValue automatically.
-        -- If specific action on text change is needed, it would go here.
-        -- For this use case, the button will read the value, so this can be minimal.
-    end
-})
-
-Tab:CreateButton({
-    Name = "🏹 • Hit Player by Name",
-    Callback = function()
-        if not Player.Character then
-            getgenv().Notify("Error", "You do not have a character. Please spawn in first.")
-            return
-        end
-
-        -- Read the target name from the flag associated with the input field
-        local targetName = Flags.TargetPlayerNameInput and Flags.TargetPlayerNameInput.CurrentValue
-        
-        if not targetName or targetName == "" then
-            getgenv().Notify("Error", "Please enter a player name in the 'Target Player Name' input field.")
-            return
-        end
-
-        local targetCharacter = nil
-        for _, charInstance in ipairs(workspace.Characters:GetChildren()) do
-            -- Check if it's a Model, has a Humanoid, and matches the target name
-            if charInstance:IsA("Model") and charInstance:FindFirstChild("Humanoid") and charInstance.Name == targetName then
-                if charInstance == Player.Character then
-                    getgenv().Notify("Info", "You cannot target yourself using this function.")
-                    return -- Exit if trying to target self
-                end
-                targetCharacter = charInstance
-                break
-            end
-        end
-
-        if targetCharacter then
-            getgenv().Notify("Combat", "Attempting to hit player: " .. targetCharacter.Name)
-            Remotes.CharactersDamageRemote:FireServer({targetCharacter})
-        else
-            getgenv().Notify("Combat", "Player '" .. targetName .. "' not found or is not a valid character.")
-        end
-    end
-})
 
 Tab:CreateToggle({
 	Name = "🔥 • Breath Aura (Needs Breath On)",
