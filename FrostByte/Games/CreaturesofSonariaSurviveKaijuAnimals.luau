@@ -98,28 +98,6 @@ Tab:CreateToggle({
 	end,
 })
 
-
-Tab:CreateToggle({
-	Name = "🔥 • Breath Aura (Needs Breath On)",
-	CurrentValue = false,
-	Flag = "BreathAura",
-	Callback = function(Value)	
-		while Flags.BreathAura.CurrentValue and task.wait() do
-			local Closest = GetClosestChild(workspace.Characters:GetChildren(), function(Child)
-				if Child == Player.Character then
-					return true
-				end
-			end)
-
-			if not Closest then
-				continue
-			end
-
-			Remotes.CharactersDamageRemoteBreath:FireServer({Closest})
-		end
-	end,
-})
-
 local Tab: Tab = Window:CreateTab("Consumption", "apple")
 
 Tab:CreateSection("Food/Drinks")
