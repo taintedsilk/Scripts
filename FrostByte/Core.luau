@@ -1,31 +1,33 @@
 --!strict
 local getgenv: () -> ({[string]: any}) = getfenv().getgenv
 
-if not getgenv().ScriptVersion then
-	getgenv().ScriptVersion = "Dev Mode"
-end
-
-local ScriptVersion = getgenv().ScriptVersion
-
-local StartLoadTime = tick()
-
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
-
-local Player = Players.LocalPlayer
-
 if getgenv().CoreTesting then
 	print("Loading Core Testing")
-	
+
 	local Core = loadstring(getgenv().CoreTesting)
-	
+
 	if not Core then
 		return warn("[FrostByte]: Failed to load the Core Testing")
 	end
 
 	return Core()
 end
+
+if not getgenv().ScriptVersion then
+	getgenv().ScriptVersion = "Dev Mode"
+end
+
+local ScriptVersion = getgenv().ScriptVersion
+
+local SessionStart = getgenv().SessionStart or tick()
+
+getgenv().SessionStart = SessionStart
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+local Player = Players.LocalPlayer
 
 local PlaceName: string = getgenv().PlaceName or game:GetService("AssetService"):GetGamePlacesAsync(game.GameId):GetCurrentPage()[1].Name
 
@@ -282,7 +284,7 @@ Tab:CreateLabel("discord.gg/sS3tDP6FSB", "messages-square")
 
 Tab:CreateSection("Changelog")
 
-Tab:CreateParagraph({Title = `{PlaceName} {ScriptVersion}`, Content = getgenv().Changelog or "Changelog Not Found", Changelog = true})
+Tab:CreateParagraph({Title = `{PlaceName} | {ScriptVersion}`, Content = getgenv().Changelog or "Changelog Not Found", Changelog = true})
 
 Tab:CreateSection("Performance")
 
@@ -334,7 +336,7 @@ local PlaytimeLabel = Tab:CreateLabel(`{PlaytimeMessage} 0 seconds`, "timer")
 
 task.spawn(function()
 	while getgenv().Flags == Flags and task.wait(1) do
-		PlaytimeLabel:Set(`{PlaytimeMessage} {math.floor(tick() - StartLoadTime)} seconds`)
+		PlaytimeLabel:Set(`{PlaytimeMessage} {math.floor(tick() - SessionStart)} seconds`)
 	end
 end)
 
@@ -522,7 +524,7 @@ getgenv().CreateFeature = function(Tab: Tab, FeatureName: string)
 	end
 end
 
-getgenv().CreateUniversalTabs = function()
+getgenv().SetupFinished = function()
 	Rayfield:LoadConfiguration()
 
 	task.wait(1)
@@ -537,125 +539,13 @@ getgenv().CreateUniversalTabs = function()
 		FlagInfo:Set(CurrentValue)
 	end
 
-	Notify("Welcome to FrostByte", `Loaded in {math.floor((tick() - StartLoadTime) * 10) / 10}s`, "loader-circle")
+	Notify("Welcome to FrostByte", `Loaded in {math.floor((tick() - SessionStart) * 10) / 10}s`, "loader-circle")
 end
+
+getgenv().CreateUniversalTabs = getgenv().SetupFinished
 
 local FrostByteStarted = getgenv().FrostByteStarted
 
 if FrostByteStarted then
 	FrostByteStarted()
 end
-
---[[function CreateUniversalTabs()
-	local StaffRoleNames = {
-		"mod",
-		"dev",
-		"admin",
-		"owner",
-		"founder",
-		"manag",
-	}
-
-	local function IsInGroup(CheckPlayer: Player, GroupId: number)
-		local Success, Result = pcall(CheckPlayer.IsInGroup, CheckPlayer, GroupId)
-
-		return Success and Result
-	end
-
-	local function GetRoleInGroup(CheckPlayer: Player, GroupId: number)
-		local Success, Result = pcall(CheckPlayer.GetRoleInGroup, CheckPlayer, GroupId)
-
-		return if Success then Result else "Guest"
-	end
-
-	local function GetRankInGroup(CheckPlayer: Player, GroupId: number)
-		local Success, Result = pcall(CheckPlayer.GetRankInGroup, CheckPlayer, GroupId)
-
-		return if Success then Result else 0
-	end
-
-	local function GetStaffRole(CheckPlayer: Player)
-		local StaffRole
-
-		if IsInGroup(CheckPlayer, 1200769) then
-			StaffRole = "Roblox Admin"
-		end
-
-		if game.CreatorType ~= Enum.CreatorType.Group then
-			return
-		end
-
-		local CreatorId = game.CreatorId
-
-		local Role = GetRoleInGroup(CheckPlayer, CreatorId)
-
-		for _, Name in StaffRoleNames do
-			if typeof(Role) == "string" and Role:lower():find(Name) then
-				StaffRole = Role
-			end
-		end
-
-		if GetRankInGroup(CheckPlayer, CreatorId) == 255 then
-			StaffRole = "Group Owner"
-		end
-
-		return StaffRole
-	end
-
-	local function CheckIfStaff(CheckPlayer: Player)
-		if not Flags.StaffJoin.CurrentValue then
-			return
-		end
-
-		local StaffRole = GetStaffRole(CheckPlayer)
-
-		if not StaffRole then
-			return
-		end
-
-		Player:Kick(`The player '{CheckPlayer.Name}' was detected to be a staff member, their role is '{StaffRole}'.\n\nIf you believe this is false, contact the dev of FrostByte.`)
-	end
-
-	Tab:CreateToggle({
-		Name = "🔔 • Auto Leave When Staff Joins",
-		CurrentValue = false,
-		Flag = "StaffJoin",
-		Callback = function(Value)
-			if not Value then
-				return
-			end
-
-			for _, CheckPlayer in Players:GetPlayers() do
-				CheckIfStaff(CheckPlayer)
-			end
-		end,
-	})
-
-	HandleConnection(Players.PlayerAdded:Connect(CheckIfStaff), "StaffJoin")
-
-	Tab:CreateToggle({
-		Name = "🌀 • Noclip",
-		CurrentValue = false,
-		Flag = "Noclip",
-		Callback = function(Value)
-			local Character = Player.Character
-
-			if not Character then
-				return Notify("Error", "You do not have a character.")
-			end
-
-			for _, Part: Part in Character:GetChildren() do
-				if not Part:IsA("BasePart") then
-					continue
-				end
-
-				if Value then
-					Part:SetAttribute("OriginalCollide", Part.CanCollide)
-					Part.CanCollide = false
-				else
-					Part.CanCollide = Part:GetAttribute("OriginalCollide") or Part.CanCollide
-				end
-			end
-		end,
-	})
-end]]
